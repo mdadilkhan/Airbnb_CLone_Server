@@ -21,6 +21,7 @@ app.use('/api',authRoute)
    
 
 app.use((err, req, res, next) => {
+    console.log("global");
     const status = err.status || 500;
     const message = err.message || 'Internal Server Error';
     return res.status(status).json({

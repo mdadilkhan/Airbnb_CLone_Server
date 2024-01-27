@@ -40,11 +40,12 @@ export const login = async (req, res, next) => {
   try {
     console.log(email, password);
     const user = await User.findOne({ email: email });
-    console.log({ ...user._doc });
+    console.log(user);
     if (!user) {
       return next(errorHandler(404, "User Not Found"));
     }
-    const matchPassword = bcrypt.compare(password, user.hashedPassword);
+    const matchPassword = await bcrypt.compare(password, user.hashedPassword);
+    console.log(matchPassword);
     if (!matchPassword) {
       return next(errorHandler(401, "Invalid Credential"));
     }
@@ -62,10 +63,9 @@ export const login = async (req, res, next) => {
       .send({ success: true, message: "Login Successfully!!", data: rest });
   } catch (error) {
     console.log("catch");
-    next(error)
+    next(error);
   }
 };
-
 
 // export const fetchUser=async(req,res,next)=>{
 //   try {
@@ -87,8 +87,7 @@ export const login = async (req, res, next) => {
 //   }
 // }
 
-
-export const fetchUser = async (req,res,next) => {
+export const fetchUser = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const user = await User.findById(userId);
@@ -101,18 +100,19 @@ export const fetchUser = async (req,res,next) => {
   }
 };
 
-// export const checkCookie = async (req, res, next) => {
-//   console.log(req.body);
-//   const token = req.cookies.access_token;
-//   console.log("token>>", token);
-//   res.status(200).send({ success: true, message: "get cookie" });
-// };
 
 
-// export const logoutUser = async (req, res, next) => {
-//   res.clearCookie("token");
-//   res.send({ success: true });
-// };
+export const logoutUser = async (req, res, next) => {
+  console.log("inside logout");
+  res.clearCookie("access_token", {
+    path: "/",
+    httpOnly: true,
+    sameSite: "None",
+    secure: true,
+  });
+
+  res.status(200).send({ success: true, message: "Logout successful" });
+};
 
 export const google = async (req, res, next) => {
   try {
