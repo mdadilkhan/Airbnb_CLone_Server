@@ -62,15 +62,57 @@ export const login = async (req, res, next) => {
       .send({ success: true, message: "Login Successfully!!", data: rest });
   } catch (error) {
     console.log("catch");
+    next(error)
   }
 };
 
-export const checkCookie = async (req, res, next) => {
-  console.log(req.body);
-  const token = req.cookies.access_token;
-  console.log("token>>", token);
-  res.status(200).send({ success: true, message: "get cookie" });
+
+// export const fetchUser=async(req,res,next)=>{
+//   try {
+//     console.log(req.body);
+//     const token = req.cookies.access_token;
+//     console.log("token>>",token);
+//     if(!token)return next(errorHandler(404,"Access token not found"))
+//     const decodedToken=jwt.verify(token,process.env.JWT_SECRET)
+//    if(!decodedToken)return next(errorHandler(401,"Invalid token"))
+//    const userId=decodedToken.id
+//   console.log("userID>>",userId);
+//   const user=await User.findById(userId);
+//   if(!userId)return next(errorHandler(404,"User not found"))
+//   const { hashedPassword, ...rest } = user._doc;
+//   res.status(200).json({ success: true, data: rest });
+//   } catch (error) {
+//     console.log("catch");
+//     next(error)
+//   }
+// }
+
+
+export const fetchUser = async (req,res,next) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+    if (!userId) return next(errorHandler(404, "User not found"));
+    const { hashedPassword, ...rest } = user._doc;
+    res.status(200).json({ success: true, data: rest });
+  } catch (error) {
+    console.log("catch");
+    next(error);
+  }
 };
+
+// export const checkCookie = async (req, res, next) => {
+//   console.log(req.body);
+//   const token = req.cookies.access_token;
+//   console.log("token>>", token);
+//   res.status(200).send({ success: true, message: "get cookie" });
+// };
+
+
+// export const logoutUser = async (req, res, next) => {
+//   res.clearCookie("token");
+//   res.send({ success: true });
+// };
 
 export const google = async (req, res, next) => {
   try {
