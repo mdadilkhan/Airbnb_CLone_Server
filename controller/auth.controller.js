@@ -115,23 +115,25 @@ export const logoutUser = async (req, res, next) => {
 };
 
 export const google = async (req, res, next) => {
+  console.log(req.body);
   try {
     console.log("inside try");
-    console.log("email", req.body.email);
+    console.log("email", req.body.email,req.body.name);
     const user = await User.findOne({ email: req.body.email });
     if (user) {
       console.log("inside eif");
       const token = generateJwtToken({ id: user._id }, process.env.JWT_SECRET);
       console.log("token inside if", token);
       const { password: hashedPassword, ...rest } = user._doc;
-      const expiryDate = new Date(Date.now() + 3600000); // 1 hour
       res
         .cookie("access_token", token, {
+          expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
           httpOnly: true,
-          expires: expiryDate,
+          sameSite: "None",
+          secure: true,
         })
         .status(200)
-        .json(rest);
+        .send({ success: true, message: "Login Successfully!!", data: rest });
     } else {
       console.log("isnide else");
       const generatedPassword =
@@ -140,30 +142,87 @@ export const google = async (req, res, next) => {
       console.log("generated password", generatedPassword);
       const hashedPassword = await hashing(generatedPassword);
       const newUser = new User({
-        username:
-          req.body.name.split(" ").join("").toLowerCase() +
-          Math.random().toString(36).slice(-8),
         email: req.body.email,
-        password: hashedPassword,
-        profilePicture: req.body.photo,
+        name:req.body.name,
+        hashedPassword: hashedPassword,
       });
 
-      console.log("generated user name", newUser.username);
       await newUser.save();
       const token = generateJwtToken(
         { id: newUser._id },
         process.env.JWT_SECRET
       );
       console.log("inside else token", token);
-      const { password: hashedPassword2, ...rest } = newUser._doc;
-      const expiryDate = new Date(Date.now() + 3600000); // 1 hour
+      const { hashedPassword: hashedPassword2, ...rest } = newUser._doc;
+
       res
         .cookie("access_token", token, {
+          expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
           httpOnly: true,
-          expires: expiryDate,
+          sameSite: "None",
+          secure: true,
         })
         .status(200)
-        .json(rest);
+        .send({ success: true, message: "Login Successfully!!", data: rest });
+    }
+  } catch (error) {
+    console.log("inside catch");
+
+    next(error);
+  }
+};
+
+
+export const github = async (req, res, next) => {
+  console.log(req.body);
+  try {
+    console.log("inside try");
+    console.log("email", req.body.email,req.body.name);
+    const user = await User.findOne({ email: req.body.email });
+    if (user) {
+      console.log("inside eif");
+      const token = generateJwtToken({ id: user._id }, process.env.JWT_SECRET);
+      console.log("token inside if", token);
+      const { password: hashedPassword, ...rest } = user._doc;
+      res
+        .cookie("access_token", token, {
+          expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
+          httpOnly: true,
+          sameSite: "None",
+          secure: true,
+        })
+        .status(200)
+        .send({ success: true, message: "Login Successfully!!", data: rest });
+    } else {
+      console.log("isnide else");
+      const generatedPassword =
+        Math.random().toString(36).slice(-8) +
+        Math.random().toString(36).slice(-8);
+      console.log("generated password", generatedPassword);
+      const hashedPassword = await hashing(generatedPassword);
+      const newUser = new User({
+        email: req.body.email,
+        name:req.body.name,
+        hashedPassword: hashedPassword,
+      });
+
+      await newUser.save();
+      const token = generateJwtToken(
+        { id: newUser._id },
+        process.env.JWT_SECRET
+      );
+      console.log("inside else token", token);
+      const { hashedPassword: hashedPassword2, ...rest } = newUser._doc;
+
+      res
+        .cookie("access_token", token, {
+          expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
+          httpOnly: true,
+          sameSite: "None",
+          secure: true,
+        })
+        .status(200)
+        .send({ success: true, message: "Login Successfully!!", data: rest });
     }
   } catch (error) {
     console.log("inside catch");

@@ -12,7 +12,10 @@ const app=express()
 app.use(express.json())
 
 
-app.use(cors({ credentials: true, origin: "https://airbnb-29671.web.app" }));
+app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
+// for production cors 
+// app.use(cors({ credentials: true, origin: "https://airbnb-29671.web.app" }));
+
 app.use(cookieParser());
 
 
