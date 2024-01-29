@@ -7,7 +7,7 @@ const router=express.Router();
 
 router.post('/register',register)
 router.post('/googleSignin',google)
-router.post('/githubLogin',github)
+router.post('/githubSignin',github)
 router.post('/login',login)
 router.post('/logout',verifyToken,logoutUser)
 router.get('/getUserDetials',verifyToken,fetchUser);
